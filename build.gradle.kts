@@ -18,6 +18,14 @@ repositories {
     mavenCentral()
 }
 
+/** (Workaround for "cannot serialize object of type 'java.io.PipedInputStream'")[https://github.com/gradle/gradle/issues/21364]
+ */
+tasks.withType<JavaExec>().configureEach {
+    if (name.endsWith("main()")) {
+        notCompatibleWithConfigurationCache("JavaExec created by IntelliJ")
+    }
+}
+
 dependencies {
     implementation(libs.ktor.server.core)
     implementation(libs.ktor.server.netty)
