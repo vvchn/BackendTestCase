@@ -7,7 +7,7 @@ logback-version = "1.4.14"
 detekt = "1.23.8"
 exposed = "0.44.1"
 postgresql = "42.7.2"
-swagger-ui = "2.11.0"
+openapi-tools = "5.0.1"
 
 [libraries]
 # Core
@@ -28,7 +28,8 @@ postgresql-driver = { module = "org.postgresql:postgresql", version.ref = "postg
 kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin-version" }
 
 # Swagger
-swagger-ui = { module = "io.github.smiley4:ktor-swagger-ui", version.ref = "swagger-ui"}
+openapi-core = { module = "io.github.smiley4:ktor-openapi", version.ref = "openapi-tools"}
+openapi-swagger = { module = "io.github.smiley4:ktor-swagger-ui", version.ref = "openapi-tools"}
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin-version" }
