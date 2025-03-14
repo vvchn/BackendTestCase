@@ -109,31 +109,35 @@ fun Route.dictManagement(service: DictionaryService) {
                     description = "Успешное выполнение"
                     body<String> {
                         example("default") {
-                            value = "POST /dictionaries/fromName/toName: TODO"
+                            value = "Dictionary test2 created"
                         }
                     }
                 }
                 HttpStatusCode.BadRequest to {
                     description = "Переданы некорректные аргументы"
                 }
+                HttpStatusCode.Conflict to {
+                    description = "Справочник с таким именем уже существует"
+                }
             }
         }) {
             val fromName = call.parameters["fromName"]
             val toName = call.parameters["toName"]
 
-            when {
-                fromName.isNullOrBlank() -> {
-                    call.badRequest("Invalid argument \"fromName\"")
-                    return@post
+            try {
+                if (fromName.isNullOrBlank() || toName.isNullOrBlank()) {
+                    throw IllegalArgumentException("Incorrect 'fromName' or 'toName' passed")
                 }
 
-                toName.isNullOrBlank() -> {
-                    call.badRequest("Invalid argument \"toName\"")
-                    return@post
-                }
-
-                else -> {
-                    call.respondText("POST /dictionaries/$fromName/$toName: TODO")
+                service.copyDictionary(fromName, toName)
+                call.respond(HttpStatusCode.Created, "Dictionary $toName created")
+            } catch (e: IllegalArgumentException) {
+                call.respond(HttpStatusCode.BadRequest, "${e.message}")
+            } catch (e: ExposedSQLException) {
+                if (e.message?.contains("duplicate key") == true) {
+                    call.respond(HttpStatusCode.Conflict, "Dictionary with name $fromName already exists")
+                } else {
+                    call.respond(HttpStatusCode.InternalServerError, "Failed to create dictionary: ${e.message}")
                 }
             }
         }
