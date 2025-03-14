@@ -1,14 +1,14 @@
 package controllers.dictionaries
 
+import com.example.services.DictionaryService
 import io.ktor.http.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
-// TODO: Service
-class DictionariesController(private val service: Nothing?) {
+class DictionariesController(private val service: DictionaryService) {
     fun Routing.configureRouting() {
-        dictManagement()
-        dictCrudOperations()
+        dictManagement(service)
+        dictCrudOperations(service)
     }
 }
 

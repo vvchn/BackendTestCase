@@ -1,5 +1,8 @@
 package com.example
 
+import com.example.data.DatabaseConfig
+import com.example.services.DictionaryService
+import com.example.services.DictionaryServiceImpl
 import controllers.dictionaries.DictionariesController
 import io.github.smiley4.ktoropenapi.OpenApi
 import io.github.smiley4.ktoropenapi.config.OutputFormat
@@ -19,8 +22,8 @@ fun main() {
 }
 
 fun Application.module() {
-//    val db = DatabaseConfig.db
-    val controller = DictionariesController(null)
+    val dictService: DictionaryService = DictionaryServiceImpl(DatabaseConfig.db)
+    val controller = DictionariesController(dictService)
 
     install(ContentNegotiation) {
         json(

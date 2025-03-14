@@ -1,5 +1,6 @@
 package controllers.dictionaries
 
+import com.example.services.DictionaryService
 import io.github.smiley4.ktoropenapi.config.RouteConfig
 import io.github.smiley4.ktoropenapi.delete
 import io.github.smiley4.ktoropenapi.get
@@ -10,7 +11,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
 // TODO: Replace mock response with real ones
-fun Route.dictCrudOperations() {
+fun Route.dictCrudOperations(service: DictionaryService) {
     route("/dictionaries/{name}/records") {
         val errMsg = "Invalid argument \"name\""
 
