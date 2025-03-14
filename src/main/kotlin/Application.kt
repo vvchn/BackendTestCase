@@ -1,14 +1,18 @@
 package com.example
 
 import com.example.controllers.dictionaries.DictionariesController
+import com.example.modules.data.DatabaseConfig
 import io.github.smiley4.ktoropenapi.OpenApi
 import io.github.smiley4.ktoropenapi.config.OutputFormat
 import io.github.smiley4.ktoropenapi.openApi
 import io.github.smiley4.ktorswaggerui.swaggerUI
+import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
+import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.routing.*
+import kotlinx.serialization.json.Json
 
 fun main() {
     embeddedServer(Netty, port = 8080, host = "0.0.0.0", module = Application::module)
@@ -16,7 +20,18 @@ fun main() {
 }
 
 fun Application.module() {
+    val db = DatabaseConfig.db
     val controller = DictionariesController(null)
+
+    install(ContentNegotiation) {
+        json(
+            Json {
+                prettyPrint = true
+                isLenient = true
+                ignoreUnknownKeys = true
+            }
+        )
+    }
 
     install(OpenApi) {
         outputFormat = OutputFormat.JSON
@@ -28,7 +43,8 @@ fun Application.module() {
 
         info {
             title = "Тестовое задание для разработчика ПО"
-            description = "Бэкенд-приложение, которое представляет собой универсальное решение для выполнения CRUD-операций над справочниками и их данными."
+            description =
+                "Бэкенд-приложение, которое представляет собой универсальное решение для выполнения CRUD-операций над справочниками и их данными."
         }
     }
 
