@@ -31,6 +31,9 @@ kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version
 openapi-core = { module = "io.github.smiley4:ktor-openapi", version.ref = "openapi-tools"}
 openapi-swagger = { module = "io.github.smiley4:ktor-swagger-ui", version.ref = "openapi-tools"}
 
+# Lint
+detekt-formatting = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", version.ref = "detekt" }
+
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin-version" }
 ktor = { id = "io.ktor.plugin", version.ref = "ktor-version" }
