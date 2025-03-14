@@ -16,7 +16,6 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 
-// TODO: Replace mock response with real ones
 fun Route.dictManagement(service: DictionaryService) {
     route("/dictionaries") {
         get({
@@ -189,7 +188,7 @@ fun Route.dictManagement(service: DictionaryService) {
             } catch (e: NotFoundException) {
                 call.respond(HttpStatusCode.NotFound, e.message ?: "")
             } catch (e: ExposedSQLException) {
-                call.respond(HttpStatusCode.InternalServerError, "Failed to create dictionary")
+                call.respond(HttpStatusCode.InternalServerError, "Failed to delete dictionary")
             }
         }
     }
