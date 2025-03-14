@@ -3,6 +3,7 @@ package com.example.services
 import com.example.data.Dictionaries
 import com.example.models.DictionaryRequest
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 
@@ -14,7 +15,12 @@ class DictionaryServiceImpl(private val db: Database): DictionaryService {
     }
 
     override suspend fun createDictionary(request: DictionaryRequest) {
-        TODO("Not yet implemented")
+        newSuspendedTransaction(db = db) {
+            Dictionaries.insert {
+                it[name] = request.name
+                it[structure] = request.structure
+            }
+        }
     }
 
     override suspend fun copyDictionary(fromName: String, toName: String) {

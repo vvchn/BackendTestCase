@@ -1,13 +1,19 @@
 package controllers.dictionaries
 
+import com.example.models.DictionaryField
+import com.example.models.DictionaryRequest
+import com.example.models.DictionaryStructure
+import com.example.models.FieldType
 import com.example.services.DictionaryService
 import io.github.smiley4.ktoropenapi.config.RouteConfig
 import io.github.smiley4.ktoropenapi.delete
 import io.github.smiley4.ktoropenapi.get
 import io.github.smiley4.ktoropenapi.post
 import io.ktor.http.*
+import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import org.jetbrains.exposed.exceptions.ExposedSQLException
 
 // TODO: Replace mock response with real ones
 fun Route.dictManagement(service: DictionaryService) {
@@ -35,18 +41,53 @@ fun Route.dictManagement(service: DictionaryService) {
             description = "Создать новый справочник. В теле запроса должны передаваться имя справочника и его структура (список полей и их типы)"
             setTag()
 
+            request {
+                body<DictionaryRequest> {
+                    contentType(ContentType.Application.Json) {
+                        example("default") {
+                            value = DictionaryRequest(
+                                name = "products",
+                                structure = DictionaryStructure(
+                                    fields = listOf(
+                                        DictionaryField(name = "productName", type = FieldType.string),
+                                        DictionaryField(name = "price", type = FieldType.number),
+                                        DictionaryField(name = "inStock", type = FieldType.boolean)
+                                    )
+                                )
+                            )
+                        }
+                    }
+                }
+            }
+
             response {
                 HttpStatusCode.OK to {
                     description = "Успешное выполнение"
                     body<String> {
                         example("default") {
-                            value = "POST /dictionaries: :TODO"
+                            value = "Dictionary test created"
                         }
                     }
                 }
+                HttpStatusCode.BadRequest to {
+                    description = "Переданы некорректные аргументы"
+                }
+                HttpStatusCode.Conflict to {
+                    description = "Справочник с таким именем уже существует"
+                }
             }
         }) {
-            call.respondText("POST /dictionaries: :TODO")
+            val request = call.receive<DictionaryRequest>()
+            try {
+                service.createDictionary(request)
+                call.respond(HttpStatusCode.Created, "Dictionary ${request.name} created.")
+            } catch (e: ExposedSQLException) {
+                if (e.message?.contains("duplicate key") == true) {
+                    call.respond(HttpStatusCode.Conflict, "Dictionary '${request.name}' already exists")
+                } else {
+                    call.respond(HttpStatusCode.InternalServerError, "Failed to create dictionary: ${e.message}")
+                }
+            }
         }
 
         post("/{fromName}/{toName}", {

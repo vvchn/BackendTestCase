@@ -2,9 +2,10 @@ package com.example.models
 
 import kotlinx.serialization.Serializable
 
+@Suppress("EnumEntryName")
 @Serializable
 enum class FieldType {
-    STRING, NUMBER, BOOLEAN, DOUBLE
+    string, number, boolean, double
 }
 
 @Serializable
