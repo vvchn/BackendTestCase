@@ -21,13 +21,14 @@ fun Route.dictManagement(service: DictionaryService) {
                     description = "Успешное выполнение"
                     body<String> {
                         example("default") {
-                            value = "GET /dictionaries: TODO"
+                            value = "[products, names, test]"
                         }
                     }
                 }
             }
         }) {
-            call.respondText("GET /dictionaries: TODO")
+            val dictionaries = service.getAllDictionaries()
+            call.respond(dictionaries)
         }
 
         post({

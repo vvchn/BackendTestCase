@@ -1,11 +1,16 @@
 package com.example.services
 
+import com.example.data.Dictionaries
 import com.example.models.DictionaryRequest
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 
 class DictionaryServiceImpl(private val db: Database): DictionaryService {
     override suspend fun getAllDictionaries(): List<String> {
-        TODO("Not yet implemented")
+        return newSuspendedTransaction(db = db) {
+            Dictionaries.selectAll().map { it[Dictionaries.name] }
+        }
     }
 
     override suspend fun createDictionary(request: DictionaryRequest) {
