@@ -34,8 +34,12 @@ fun Route.dictManagement(service: DictionaryService) {
                 }
             }
         }) {
-            val dictionaries = service.getAllDictionaries()
-            call.respond(dictionaries)
+            try {
+                val dictionaries = service.getAllDictionaries()
+                call.respond(dictionaries)
+            } catch (e: ExposedSQLException) {
+                call.respond(HttpStatusCode.InternalServerError, "Failed to get dictionaries")
+            }
         }
 
         post({
