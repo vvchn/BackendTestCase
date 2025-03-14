@@ -19,9 +19,9 @@ fun Route.dictManagement(service: DictionaryService) {
             response {
                 HttpStatusCode.OK to {
                     description = "Успешное выполнение"
-                    body<String> {
+                    body<List<String>> {
                         example("default") {
-                            value = "[products, names, test]"
+                            value = listOf("products", "names", "test")
                         }
                     }
                 }
