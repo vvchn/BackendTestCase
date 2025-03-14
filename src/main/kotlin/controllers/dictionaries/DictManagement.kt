@@ -82,11 +82,13 @@ fun Route.dictManagement(service: DictionaryService) {
             try {
                 service.createDictionary(request)
                 call.respond(HttpStatusCode.Created, "Dictionary ${request.name} created.")
+            } catch (e: IllegalArgumentException) {
+                call.respond(HttpStatusCode.BadRequest, e.message ?: "")
             } catch (e: ExposedSQLException) {
                 if (e.message?.contains("duplicate key") == true) {
                     call.respond(HttpStatusCode.Conflict, "Dictionary '${request.name}' already exists")
                 } else {
-                    call.respond(HttpStatusCode.InternalServerError, "Failed to create dictionary: ${e.message}")
+                    call.respond(HttpStatusCode.InternalServerError, "Failed to create dictionary")
                 }
             }
         }
