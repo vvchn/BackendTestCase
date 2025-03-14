@@ -95,7 +95,6 @@ fun Route.dictManagement() {
             }
         }
 
-
         delete("/{name}", {
             description = "Удалить справочник и все его данные."
             setTag()

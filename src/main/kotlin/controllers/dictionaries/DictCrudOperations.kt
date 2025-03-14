@@ -95,7 +95,6 @@ fun Route.dictCrudOperations() {
                     description = "ID записи"
                     required = true
                 }
-
             }
             response {
                 HttpStatusCode.OK to {
@@ -157,7 +156,6 @@ fun Route.dictCrudOperations() {
                     description = "Справочник с таким именем не найден"
                 }
             }
-
         }) {
             val name = call.parameters["name"]
             val id = call.parameters["id"]
@@ -190,7 +188,6 @@ fun Route.dictCrudOperations() {
                     description = "ID записи, которую нужно удалить"
                     required = true
                 }
-
             }
             response {
                 HttpStatusCode.OK to {
@@ -222,7 +219,6 @@ fun Route.dictCrudOperations() {
 
                 else -> call.respondText("DELETE /dictionaries/$name/records/$id: TODO")
             }
-
         }
     }
 }
