@@ -1,11 +1,11 @@
 package com.example.services
 
 import com.example.data.Dictionaries
+import com.example.data.DictionaryRecords
 import com.example.models.DictionaryRequest
-import org.jetbrains.exposed.sql.Database
+import io.ktor.server.plugins.*
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 
 class DictionaryServiceImpl(private val db: Database) : DictionaryService {
@@ -37,7 +37,13 @@ class DictionaryServiceImpl(private val db: Database) : DictionaryService {
     }
 
     override suspend fun deleteDictionary(name: String) {
-        TODO("Not yet implemented")
+        newSuspendedTransaction(db = db) {
+            DictionaryRecords.deleteWhere { dictionaryName eq name }
+            val dictDeleted = Dictionaries.deleteWhere { Dictionaries.name eq name }
+            if (dictDeleted == 0) {
+                throw NotFoundException("Dictionary '$name' not found")
+            }
+        }
     }
 
     override suspend fun getRecords(name: String): List<Pair<Int, String>> {

@@ -10,6 +10,7 @@ import io.github.smiley4.ktoropenapi.delete
 import io.github.smiley4.ktoropenapi.get
 import io.github.smiley4.ktoropenapi.post
 import io.ktor.http.*
+import io.ktor.server.plugins.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -157,7 +158,7 @@ fun Route.dictManagement(service: DictionaryService) {
                     description = "Успешное выполнение"
                     body<String> {
                         example("default") {
-                            value = "DELETE /dictionaries: :TODO"
+                            value = "Dictionary test3 deleted"
                         }
                     }
                 }
@@ -168,10 +169,19 @@ fun Route.dictManagement(service: DictionaryService) {
         }) {
             val name = call.parameters["name"]
 
-            return@delete if (name.isNullOrBlank()) {
-                call.badRequest("Invalid argument \"name\"")
-            } else {
-                call.respondText("DELETE /$name: TODO")
+            try {
+                if (name.isNullOrBlank()) {
+                    throw IllegalArgumentException("Incorrect 'fromName' or 'toName' passed")
+                }
+
+                service.deleteDictionary(name)
+                call.respond(HttpStatusCode.OK, "Dictionary $name deleted")
+            } catch (e: IllegalArgumentException) {
+                call.respond(HttpStatusCode.BadRequest, e.message ?: "")
+            } catch (e: NotFoundException) {
+                call.respond(HttpStatusCode.NotFound, e.message ?: "")
+            } catch (e: ExposedSQLException) {
+                call.respond(HttpStatusCode.InternalServerError, "Failed to create dictionary")
             }
         }
     }
