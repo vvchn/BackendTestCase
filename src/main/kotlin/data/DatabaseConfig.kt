@@ -3,6 +3,8 @@ package com.example.data
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.transactions.transaction
 
 object DatabaseConfig {
     private val hikari: HikariDataSource by lazy {
@@ -19,6 +21,10 @@ object DatabaseConfig {
     }
 
     val db: Database by lazy {
-        Database.connect(hikari)
+        val database = Database.connect(hikari)
+        transaction(database) {
+            SchemaUtils.create(Dictionaries, DictionaryRecords)
+        }
+        database
     }
 }
