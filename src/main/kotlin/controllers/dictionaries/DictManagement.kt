@@ -1,4 +1,4 @@
-package com.example.controllers.dictionaries
+package controllers.dictionaries
 
 import io.github.smiley4.ktoropenapi.config.RouteConfig
 import io.github.smiley4.ktoropenapi.delete

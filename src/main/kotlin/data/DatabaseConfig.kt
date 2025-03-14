@@ -1,4 +1,4 @@
-package com.example.modules.data
+package com.example.data
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource

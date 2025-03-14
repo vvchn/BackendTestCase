@@ -1,6 +1,6 @@
-package com.example.modules.data
+package com.example.data
 
-import com.example.modules.models.DictionaryStructure
+import com.example.models.DictionaryStructure
 import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.json.json

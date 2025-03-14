@@ -1,4 +1,4 @@
-package com.example.controllers.dictionaries
+package controllers.dictionaries
 
 import io.ktor.http.*
 import io.ktor.server.response.*

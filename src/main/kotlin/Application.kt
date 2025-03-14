@@ -1,7 +1,6 @@
 package com.example
 
-import com.example.controllers.dictionaries.DictionariesController
-import com.example.modules.data.DatabaseConfig
+import controllers.dictionaries.DictionariesController
 import io.github.smiley4.ktoropenapi.OpenApi
 import io.github.smiley4.ktoropenapi.config.OutputFormat
 import io.github.smiley4.ktoropenapi.openApi
@@ -20,7 +19,7 @@ fun main() {
 }
 
 fun Application.module() {
-    val db = DatabaseConfig.db
+//    val db = DatabaseConfig.db
     val controller = DictionariesController(null)
 
     install(ContentNegotiation) {
