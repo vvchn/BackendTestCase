@@ -133,12 +133,14 @@ fun Route.dictManagement(service: DictionaryService) {
                 service.copyDictionary(fromName, toName)
                 call.respond(HttpStatusCode.Created, "Dictionary $toName created")
             } catch (e: IllegalArgumentException) {
-                call.respond(HttpStatusCode.BadRequest, "${e.message}")
+                call.respond(HttpStatusCode.BadRequest, e.message ?: "")
+            } catch (e: NotFoundException) {
+                call.respond(HttpStatusCode.NotFound, e.message ?: "")
             } catch (e: ExposedSQLException) {
                 if (e.message?.contains("duplicate key") == true) {
                     call.respond(HttpStatusCode.Conflict, "Dictionary with name $fromName already exists")
                 } else {
-                    call.respond(HttpStatusCode.InternalServerError, "Failed to create dictionary: ${e.message}")
+                    call.respond(HttpStatusCode.InternalServerError, "Failed to create dictionary")
                 }
             }
         }

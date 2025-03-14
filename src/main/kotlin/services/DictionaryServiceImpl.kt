@@ -28,7 +28,7 @@ class DictionaryServiceImpl(private val db: Database) : DictionaryService {
         newSuspendedTransaction(db = db) {
             val srcStructure = Dictionaries.select(Dictionaries.name eq fromName)
                 .singleOrNull()?.get(Dictionaries.structure)
-                ?: throw IllegalArgumentException("Source dictionary '$fromName' not found")
+                ?: throw NotFoundException("Source dictionary '$fromName' not found")
             Dictionaries.insert {
                 it[name] = toName
                 it[structure] = srcStructure
