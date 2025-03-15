@@ -31,18 +31,6 @@ fun Route.dictCrudOperations(service: DictionaryService) {
             response {
                 HttpStatusCode.OK to {
                     description = "Успешное выполнение"
-                    body<RecordResponse> {
-                        contentType(ContentType.Application.Json) {
-                            example("default") {
-                                value = RecordResponse(
-                                    1,
-                                    Json.decodeFromString<Map<String, JsonElement>>(
-                                        "{\"id\":1,\"data\":{\"productName\":\"Example Product\",\"price\":\"19\",\"inStock\":\"true\"}}"
-                                    )
-                                )
-                            }
-                        }
-                    }
                 }
                 HttpStatusCode.BadRequest to {
                     description = "Переданы некорректные аргументы"
@@ -78,7 +66,7 @@ fun Route.dictCrudOperations(service: DictionaryService) {
                     description = "Название существующего справочника"
                     required = true
                 }
-                body<Map<String, JsonElement>> {
+                body<Map<String, Any>> {
                     contentType(ContentType.Application.Json) {
                         example("default") {
                             value = mapOf(
@@ -146,18 +134,6 @@ fun Route.dictCrudOperations(service: DictionaryService) {
             response {
                 HttpStatusCode.OK to {
                     description = "Успешное выполнение"
-                    body<RecordResponse> {
-                        contentType(ContentType.Application.Json) {
-                            example("default") {
-                                value = RecordResponse(
-                                    1,
-                                    Json.decodeFromString<Map<String, JsonElement>>(
-                                        "{\"id\":1,\"data\":{\"productName\":\"Example Product\",\"price\":\"19\",\"inStock\":\"true\"}}"
-                                    )
-                                )
-                            }
-                        }
-                    }
                 }
                 HttpStatusCode.BadRequest to {
                     description = "Переданы некорректные аргументы"
@@ -202,7 +178,7 @@ fun Route.dictCrudOperations(service: DictionaryService) {
                     description = "ID записи"
                     required = true
                 }
-                body<Map<String, JsonElement>> {
+                body<Map<String, Any>> {
                     contentType(ContentType.Application.Json) {
                         example("default") {
                             value = mapOf(
