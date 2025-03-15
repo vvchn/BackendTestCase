@@ -7,12 +7,12 @@ import org.jetbrains.exposed.sql.json.json
 
 const val MAX_NAME_LENGTH = 50
 
-object Dictionaries : Table() {
+object Dictionaries : Table("dictionaries") {
     val name = varchar("name", MAX_NAME_LENGTH).uniqueIndex()
     val structure = json<DictionaryStructure>("structure", Json { ignoreUnknownKeys = true })
 }
 
-object DictionaryRecords : Table() {
+object DictionaryRecords : Table("dictionary_records") {
     val id = integer("id").autoIncrement()
     val dictionaryName = varchar("dictionary_name", MAX_NAME_LENGTH).references(Dictionaries.name)
     val data = text("data")

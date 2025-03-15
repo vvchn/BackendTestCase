@@ -1,6 +1,7 @@
 package com.example.models
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonElement
 
 @Suppress("EnumEntryName")
 @Serializable
@@ -23,4 +24,10 @@ data class DictionaryStructure(
 data class DictionaryRequest(
     val name: String,
     val structure: DictionaryStructure
+)
+
+@Serializable
+data class RecordResponse(
+    val id: Int,
+    val data: Map<String, JsonElement>
 )
