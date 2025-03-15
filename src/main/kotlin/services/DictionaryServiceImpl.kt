@@ -33,11 +33,13 @@ class DictionaryServiceImpl(private val db: Database) : DictionaryService {
 
     override suspend fun copyDictionary(fromName: String, toName: String) {
         newSuspendedTransaction(db = db) {
-            val srcStructure = Dictionaries.select(Dictionaries.name eq fromName)
+            val srcStructure = Dictionaries
+                .selectAll()
+                .where { Dictionaries.name eq fromName }
                 .singleOrNull()?.get(Dictionaries.structure)
                 ?: throw NotFoundException("Source dictionary '$fromName' not found")
 
-            if (Dictionaries.select(Dictionaries.name eq toName).count() > 0) {
+            if (Dictionaries.selectAll().where { Dictionaries.name eq toName }.count() > 0) {
                 throw IllegalArgumentException("Dictionary '$toName' already exists")
             }
 
@@ -46,7 +48,10 @@ class DictionaryServiceImpl(private val db: Database) : DictionaryService {
                 it[structure] = srcStructure
             }
 
-            val records = DictionaryRecords.select(DictionaryRecords.dictionaryName eq fromName)
+            val records = DictionaryRecords
+                .selectAll()
+                .where { DictionaryRecords.dictionaryName eq fromName }
+
             records.forEach { record ->
                 DictionaryRecords.insert {
                     it[dictionaryName] = toName
