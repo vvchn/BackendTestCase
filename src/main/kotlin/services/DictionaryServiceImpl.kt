@@ -8,11 +8,8 @@ import io.ktor.server.plugins.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonPrimitive
-import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 
 class DictionaryServiceImpl(private val db: Database) : DictionaryService {
@@ -119,8 +116,26 @@ class DictionaryServiceImpl(private val db: Database) : DictionaryService {
         }
     }
 
-    override suspend fun getRecord(name: String, id: Int): Pair<Int, String>? {
-        TODO("Not yet implemented")
+    override suspend fun getRecord(name: String, id: Int): RecordResponse {
+        return newSuspendedTransaction(db = db) {
+            Dictionaries.selectAll()
+                .where { Dictionaries.name eq name }
+                .singleOrNull()
+                ?: throw NotFoundException("Dictionary '$name' not found")
+
+            DictionaryRecords.selectAll()
+                .where {
+                    (DictionaryRecords.dictionaryName eq name) and (DictionaryRecords.id eq id)
+                }
+                .map { row ->
+                    val dataMap = Json.decodeFromString<Map<String, JsonElement>>(row[DictionaryRecords.data])
+                    RecordResponse(
+                        id = row[DictionaryRecords.id],
+                        data = dataMap
+                    )
+                }
+                .firstOrNull() ?: throw NotFoundException("Record with id $id in $name not found")
+        }
     }
 
     override suspend fun updateRecord(name: String, id: Int, data: String) {

@@ -14,7 +14,7 @@ interface DictionaryService {
     // Операции с записями
     suspend fun getRecords(name: String): List<RecordResponse>
     suspend fun addRecord(name: String, rawData: Map<String, JsonElement>)
-    suspend fun getRecord(name: String, id: Int): Pair<Int, String>?
+    suspend fun getRecord(name: String, id: Int): RecordResponse
     suspend fun updateRecord(name: String, id: Int, data: String)
     suspend fun deleteRecord(name: String, id: Int)
 }

@@ -147,13 +147,23 @@ fun Route.dictCrudOperations(service: DictionaryService) {
             response {
                 HttpStatusCode.OK to {
                     description = "Успешное выполнение"
-                    body<String> {
-                        example("default") {
-                            value = "POST /dictionaries/name/records: TODO"
+                    body<RecordResponse> {
+                        contentType(ContentType.Application.Json) {
+                            example("default") {
+                                value = RecordResponse(
+                                    1,
+                                    Json.decodeFromString<Map<String, JsonElement>>(
+                                        "{\"id\":1,\"data\":{\"productName\":\"Example Product\",\"price\":\"19\",\"inStock\":\"true\"}}"
+                                    )
+                                )
+                            }
                         }
                     }
                 }
                 HttpStatusCode.BadRequest to {
+                    description = "Переданы некорректные аргументы"
+                }
+                HttpStatusCode.NotFound to {
                     description = "Справочник или запись не найдена"
                 }
             }
@@ -161,18 +171,22 @@ fun Route.dictCrudOperations(service: DictionaryService) {
             val name = call.parameters["name"]
             val id = call.parameters["id"]
 
-            when {
-                name.isNullOrBlank() -> {
-                    call.badRequest("Invalid argument \"name\"")
-                    return@get
+            try {
+                if (name.isNullOrBlank() || id.isNullOrBlank()) {
+                    throw IllegalArgumentException("Incorrect 'name' or 'id' passed")
                 }
 
-                id.isNullOrBlank() -> {
-                    call.badRequest("Invalid argument \"id\"")
-                    return@get
+                requireNotNull(id.toIntOrNull()) {
+                    "Incorrect 'id' passed"
                 }
 
-                else -> call.respondText("GET /dictionaries/$name/records/$id: TODO")
+                call.respond(HttpStatusCode.OK, service.getRecord(name, id.toInt()))
+            } catch (e: IllegalArgumentException) {
+                call.respond(HttpStatusCode.BadRequest, e.message.orEmpty())
+            } catch (e: NotFoundException) {
+                call.respond(HttpStatusCode.NotFound, e.message.orEmpty())
+            } catch (e: ExposedSQLException) {
+                call.respond(HttpStatusCode.InternalServerError, "Failed to add records")
             }
         }
 
