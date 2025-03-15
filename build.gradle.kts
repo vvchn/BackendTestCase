@@ -47,6 +47,7 @@ detekt {
     toolVersion = libs.versions.detekt.get()
     allRules = true
     ignoreFailures = true
+    config.setFrom(files("${project.rootDir}/detekt/configs/detekt.yml"))
 }
 
 tasks.withType<Detekt>().configureEach {
