@@ -220,7 +220,7 @@ fun Route.dictCrudOperations(service: DictionaryService) {
                     description = "Успешное выполнение"
                     body<String> {
                         example("default") {
-                            value = "PUT /dictionaries/name/records: TODO"
+                            value = "The record successfully updated"
                         }
                     }
                 }
