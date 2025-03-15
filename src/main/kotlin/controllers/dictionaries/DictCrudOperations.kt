@@ -118,7 +118,7 @@ fun Route.dictCrudOperations(service: DictionaryService) {
                 val recordData = call.receive<Map<String, JsonElement>>()
                 service.addRecord(name, recordData)
 
-                call.respond(HttpStatusCode.Created ,"New entry for '$name' added successfully")
+                call.respond(HttpStatusCode.Created, "New entry for '$name' added successfully")
             } catch (e: IllegalArgumentException) {
                 call.respond(HttpStatusCode.BadRequest, e.message.orEmpty())
             } catch (e: NotFoundException) {
@@ -203,6 +203,17 @@ fun Route.dictCrudOperations(service: DictionaryService) {
                     description = "ID записи"
                     required = true
                 }
+                body<Map<String, JsonElement>> {
+                    contentType(ContentType.Application.Json) {
+                        example("default") {
+                            value = mapOf(
+                                "productName" to "Brand New Example Product",
+                                "price" to 29.99,
+                                "inStock" to true
+                            )
+                        }
+                    }
+                }
             }
 
             response {
@@ -215,25 +226,35 @@ fun Route.dictCrudOperations(service: DictionaryService) {
                     }
                 }
                 HttpStatusCode.BadRequest to {
-                    description = "Справочник с таким именем не найден"
+                    description = "Переданы некорректные аргументы"
+                }
+                HttpStatusCode.NotFound to {
+                    description = "Справочник или запись не найдена"
                 }
             }
         }) {
             val name = call.parameters["name"]
             val id = call.parameters["id"]
 
-            when {
-                name.isNullOrBlank() -> {
-                    call.badRequest("Invalid argument \"name\"")
-                    return@put
+            try {
+                if (name.isNullOrBlank() || id.isNullOrBlank()) {
+                    throw IllegalArgumentException("Incorrect 'name' or 'id' passed")
                 }
 
-                id.isNullOrBlank() -> {
-                    call.badRequest("Invalid argument \"id\"")
-                    return@put
+                requireNotNull(id.toIntOrNull()) {
+                    "Incorrect 'id' passed"
                 }
 
-                else -> call.respondText("PUT /dictionaries/$name/records/$id: TODO")
+                val recordData = call.receive<Map<String, JsonElement>>()
+                service.updateRecord(name, id.toInt(), recordData)
+
+                call.respond(HttpStatusCode.OK, "The record successfully updated")
+            } catch (e: IllegalArgumentException) {
+                call.respond(HttpStatusCode.BadRequest, e.message.orEmpty())
+            } catch (e: NotFoundException) {
+                call.respond(HttpStatusCode.NotFound, e.message.orEmpty())
+            } catch (e: ExposedSQLException) {
+                call.respond(HttpStatusCode.InternalServerError, "Failed to add records")
             }
         }
 

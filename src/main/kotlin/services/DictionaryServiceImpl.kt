@@ -138,8 +138,41 @@ class DictionaryServiceImpl(private val db: Database) : DictionaryService {
         }
     }
 
-    override suspend fun updateRecord(name: String, id: Int, data: String) {
-        TODO("Not yet implemented")
+    override suspend fun updateRecord(name: String, idToUpdate: Int, rawData: Map<String, JsonElement>) {
+        newSuspendedTransaction(db = db) {
+            val d = Dictionaries.selectAll()
+                .where { Dictionaries.name eq name }
+                .singleOrNull()
+                ?: throw NotFoundException("Dictionary '$name' not found")
+
+            val structure = d[Dictionaries.structure]
+
+            val recordData = rawData.mapValues { (_, value) ->
+                when (value) {
+                    is JsonPrimitive -> value.content
+                    else -> value.toString()
+                }
+            }
+
+            require(validateRawData(structure, recordData)) {
+                "Incorrect data passed"
+            }
+
+            val jsonData = Json.encodeToString(recordData)
+
+            val updatedRows = DictionaryRecords.update({ DictionaryRecords.id eq idToUpdate }) {
+                it[dictionaryName] = name
+                it[data] = jsonData
+            }
+
+            if (updatedRows == 0) {
+                DictionaryRecords.insert {
+                    it[id] = idToUpdate
+                    it[dictionaryName] = name
+                    it[data] = jsonData
+                }
+            }
+        }
     }
 
     override suspend fun deleteRecord(name: String, id: Int) {
