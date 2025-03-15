@@ -176,7 +176,19 @@ class DictionaryServiceImpl(private val db: Database) : DictionaryService {
     }
 
     override suspend fun deleteRecord(name: String, id: Int) {
-        TODO("Not yet implemented")
-    }
+        newSuspendedTransaction(db = db) {
+            Dictionaries.selectAll()
+                .where { Dictionaries.name eq name }
+                .singleOrNull()
+                ?: throw NotFoundException("Dictionary '$name' not found")
 
+            val deletedRows = DictionaryRecords.deleteWhere {
+                (DictionaryRecords.id eq id) and (dictionaryName eq name)
+            }
+
+            if (deletedRows == 0) {
+                throw NotFoundException("Record with id '$id' in dictionary '$name' not found")
+            }
+        }
+    }
 }

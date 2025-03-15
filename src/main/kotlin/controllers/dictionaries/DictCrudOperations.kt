@@ -16,7 +16,6 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 
-// TODO: Replace mock response with real ones
 fun Route.dictCrudOperations(service: DictionaryService) {
     route("/dictionaries/{name}/records") {
         get({
@@ -277,11 +276,14 @@ fun Route.dictCrudOperations(service: DictionaryService) {
                     description = "Успешное выполнение"
                     body<String> {
                         example("default") {
-                            value = "DELETE /dictionaries/name/records: TODO"
+                            value = "The record successfully deleted"
                         }
                     }
                 }
                 HttpStatusCode.BadRequest to {
+                    description = "Переданы некорректные аргументы"
+                }
+                HttpStatusCode.NotFound to {
                     description = "Справочник или запись не найдена"
                 }
             }
@@ -289,18 +291,24 @@ fun Route.dictCrudOperations(service: DictionaryService) {
             val name = call.parameters["name"]
             val id = call.parameters["id"]
 
-            when {
-                name.isNullOrBlank() -> {
-                    call.badRequest("Invalid argument \"name\"")
-                    return@delete
+            try {
+                if (name.isNullOrBlank() || id.isNullOrBlank()) {
+                    throw IllegalArgumentException("Incorrect 'name' or 'id' passed")
                 }
 
-                id.isNullOrBlank() -> {
-                    call.badRequest("Invalid argument \"id\"")
-                    return@delete
+                requireNotNull(id.toIntOrNull()) {
+                    "Incorrect 'id' passed"
                 }
 
-                else -> call.respondText("DELETE /dictionaries/$name/records/$id: TODO")
+                service.deleteRecord(name, id.toInt())
+
+                call.respond(HttpStatusCode.OK, "The record successfully deleted")
+            } catch (e: IllegalArgumentException) {
+                call.respond(HttpStatusCode.BadRequest, e.message.orEmpty())
+            } catch (e: NotFoundException) {
+                call.respond(HttpStatusCode.NotFound, e.message.orEmpty())
+            } catch (e: ExposedSQLException) {
+                call.respond(HttpStatusCode.InternalServerError, "Failed to add records")
             }
         }
     }
