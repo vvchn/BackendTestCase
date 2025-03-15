@@ -29,9 +29,22 @@ class DictionaryServiceImpl(private val db: Database) : DictionaryService {
             val srcStructure = Dictionaries.select(Dictionaries.name eq fromName)
                 .singleOrNull()?.get(Dictionaries.structure)
                 ?: throw NotFoundException("Source dictionary '$fromName' not found")
+
+            if (Dictionaries.select(Dictionaries.name eq toName).count() > 0) {
+                throw IllegalArgumentException("Dictionary '$toName' already exists")
+            }
+
             Dictionaries.insert {
                 it[name] = toName
                 it[structure] = srcStructure
+            }
+
+            val records = DictionaryRecords.select(DictionaryRecords.dictionaryName eq fromName)
+            records.forEach { record ->
+                DictionaryRecords.insert {
+                    it[dictionaryName] = toName
+                    it[data] = record[data]
+                }
             }
         }
     }
@@ -47,7 +60,15 @@ class DictionaryServiceImpl(private val db: Database) : DictionaryService {
     }
 
     override suspend fun getRecords(name: String): List<Pair<Int, String>> {
-        TODO("Not yet implemented")
+        return newSuspendedTransaction(db = db) {
+            val dictionaryExists = Dictionaries.select(Dictionaries.name eq name).count() > 0
+            if (dictionaryExists.not()) {
+                throw NotFoundException("Dictionary '$name' not found")
+            }
+
+            DictionaryRecords.select(DictionaryRecords.dictionaryName eq name)
+                .map { Pair(it[DictionaryRecords.id], it[DictionaryRecords.data]) }
+        }
     }
 
     override suspend fun addRecord(name: String, data: String) {

@@ -145,11 +145,7 @@ fun Route.dictManagement(service: DictionaryService) {
             } catch (e: NotFoundException) {
                 call.respond(HttpStatusCode.NotFound, e.message.orEmpty())
             } catch (e: ExposedSQLException) {
-                if (e.message?.contains("duplicate key") == true) {
-                    call.respond(HttpStatusCode.Conflict, "Dictionary with name $fromName already exists")
-                } else {
-                    call.respond(HttpStatusCode.InternalServerError, "Failed to create dictionary")
-                }
+                call.respond(HttpStatusCode.InternalServerError, "Failed to create dictionary")
             }
         }
 
