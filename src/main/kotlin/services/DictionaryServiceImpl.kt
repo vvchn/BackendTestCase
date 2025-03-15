@@ -3,9 +3,16 @@ package com.example.services
 import com.example.data.Dictionaries
 import com.example.data.DictionaryRecords
 import com.example.models.DictionaryRequest
+import com.example.models.RecordResponse
 import io.ktor.server.plugins.*
-import org.jetbrains.exposed.sql.*
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonPrimitive
+import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.deleteWhere
+import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 
 class DictionaryServiceImpl(private val db: Database) : DictionaryService {
@@ -59,20 +66,52 @@ class DictionaryServiceImpl(private val db: Database) : DictionaryService {
         }
     }
 
-    override suspend fun getRecords(name: String): List<Pair<Int, String>> {
+    override suspend fun getRecords(name: String): List<RecordResponse> {
         return newSuspendedTransaction(db = db) {
-            val dictionaryExists = Dictionaries.select(Dictionaries.name eq name).count() > 0
-            if (dictionaryExists.not()) {
-                throw NotFoundException("Dictionary '$name' not found")
-            }
+            Dictionaries.selectAll()
+                .where { Dictionaries.name eq name }
+                .singleOrNull()
+                ?: throw NotFoundException("Dictionary '$name' not found")
 
-            DictionaryRecords.select(DictionaryRecords.dictionaryName eq name)
-                .map { Pair(it[DictionaryRecords.id], it[DictionaryRecords.data]) }
+            DictionaryRecords.selectAll()
+                .where { DictionaryRecords.dictionaryName eq name }
+                .map { row ->
+                    val dataMap = Json.decodeFromString<Map<String, JsonElement>>(row[DictionaryRecords.data])
+                    RecordResponse(
+                        id = row[DictionaryRecords.id],
+                        data = dataMap
+                    )
+                }
         }
     }
 
-    override suspend fun addRecord(name: String, data: String) {
-        TODO("Not yet implemented")
+    override suspend fun addRecord(name: String, rawData: Map<String, JsonElement>) {
+        newSuspendedTransaction(db = db) {
+            val d = Dictionaries.selectAll()
+                .where { Dictionaries.name eq name }
+                .singleOrNull()
+                ?: throw NotFoundException("Dictionary '$name' not found")
+
+            val structure = d[Dictionaries.structure]
+
+            val recordData = rawData.mapValues { (_, value) ->
+                when (value) {
+                    is JsonPrimitive -> value.content
+                    else -> value.toString()
+                }
+            }
+
+            require(validateRawData(structure, recordData)) {
+                "Incorrect data passed"
+            }
+
+            val jsonData = Json.encodeToString(recordData)
+
+            DictionaryRecords.insert {
+                it[dictionaryName] = name
+                it[data] = jsonData
+            }
+        }
     }
 
     override suspend fun getRecord(name: String, id: Int): Pair<Int, String>? {

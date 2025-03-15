@@ -1,6 +1,8 @@
 package com.example.services
 
 import com.example.models.DictionaryRequest
+import com.example.models.RecordResponse
+import kotlinx.serialization.json.JsonElement
 
 interface DictionaryService {
     // Операции со справочниками
@@ -10,8 +12,8 @@ interface DictionaryService {
     suspend fun deleteDictionary(name: String)
 
     // Операции с записями
-    suspend fun getRecords(name: String): List<Pair<Int, String>>
-    suspend fun addRecord(name: String, data: String)
+    suspend fun getRecords(name: String): List<RecordResponse>
+    suspend fun addRecord(name: String, rawData: Map<String, JsonElement>)
     suspend fun getRecord(name: String, id: Int): Pair<Int, String>?
     suspend fun updateRecord(name: String, id: Int, data: String)
     suspend fun deleteRecord(name: String, id: Int)
