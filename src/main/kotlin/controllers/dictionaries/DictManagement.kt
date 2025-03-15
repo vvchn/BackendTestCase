@@ -122,6 +122,9 @@ fun Route.dictManagement(service: DictionaryService) {
                 HttpStatusCode.BadRequest to {
                     description = "Переданы некорректные аргументы"
                 }
+                HttpStatusCode.NotFound to {
+                    description = "Справочник с таким именем не найдён"
+                }
                 HttpStatusCode.Conflict to {
                     description = "Справочник с таким именем уже существует"
                 }
@@ -170,6 +173,9 @@ fun Route.dictManagement(service: DictionaryService) {
                     }
                 }
                 HttpStatusCode.BadRequest to {
+                    description = "Переданы некорректные аргументы"
+                }
+                HttpStatusCode.NotFound to {
                     description = "Справочник с таким именем не найдён"
                 }
             }
