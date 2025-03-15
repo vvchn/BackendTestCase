@@ -85,8 +85,17 @@ dependencies {
     implementation(libs.postgresql.driver)
     implementation(libs.hikari)
 
-    testImplementation(libs.ktor.server.test.host)
-    testImplementation(libs.kotlin.test.junit)
+    testImplementation(libs.junit.api)
+    testImplementation(libs.kotlin.test)
+    testRuntimeOnly(libs.junit.engine)
+    testRuntimeOnly(libs.junit.launcher)
+    testImplementation(libs.exposed.core)
+    testImplementation(libs.exposed.jdbc)
+    testImplementation(libs.h2)
 
     detektPlugins(libs.detekt.formatting)
+}
+
+tasks.test {
+    useJUnitPlatform()
 }

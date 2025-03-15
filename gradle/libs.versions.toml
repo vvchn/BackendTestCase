@@ -8,13 +8,15 @@ exposed = "0.60.0"
 postgresql = "42.7.2"
 hikari = "6.2.1"
 openapi-tools = "5.0.1"
+h2 = "2.3.232"
+junit = "5.12.1"
+junit-launcher = "1.12.0"
 
 [libraries]
 # Core
 ktor-server-core = { module = "io.ktor:ktor-server-core-jvm", version.ref = "ktor-version" }
 ktor-server-netty = { module = "io.ktor:ktor-server-netty", version.ref = "ktor-version" }
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback-version" }
-ktor-server-test-host = { module = "io.ktor:ktor-server-test-host", version.ref = "ktor-version" }
 ktor-server-content-negotiation = { module = "io.ktor:ktor-server-content-negotiation-jvm", version.ref = "ktor-version" }
 ktor-serialization-json = { module = "io.ktor:ktor-serialization-kotlinx-json-jvm", version.ref = "ktor-version" }
 
@@ -27,7 +29,11 @@ postgresql-driver = { module = "org.postgresql:postgresql", version.ref = "postg
 hikari = { module = "com.zaxxer:HikariCP", version.ref = "hikari" }
 
 # Tests
-kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin-version" }
+kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin-version" }
+h2 = { module = "com.h2database:h2", version.ref = "h2" }
+junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit"}
+junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit"}
+junit-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit-launcher"}
 
 # Swagger
 openapi-core = { module = "io.github.smiley4:ktor-openapi", version.ref = "openapi-tools" }
