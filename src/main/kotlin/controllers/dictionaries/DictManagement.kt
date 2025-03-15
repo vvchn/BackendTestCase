@@ -86,7 +86,7 @@ fun Route.dictManagement(service: DictionaryService) {
                 service.createDictionary(request)
                 call.respond(HttpStatusCode.Created, "Dictionary ${request.name} created.")
             } catch (e: IllegalArgumentException) {
-                call.respond(HttpStatusCode.BadRequest, e.message ?: "")
+                call.respond(HttpStatusCode.BadRequest, e.message.orEmpty())
             } catch (e: ExposedSQLException) {
                 if (e.message?.contains("duplicate key") == true) {
                     call.respond(HttpStatusCode.Conflict, "Dictionary '${request.name}' already exists")
@@ -141,9 +141,9 @@ fun Route.dictManagement(service: DictionaryService) {
                 service.copyDictionary(fromName, toName)
                 call.respond(HttpStatusCode.Created, "Dictionary $toName created")
             } catch (e: IllegalArgumentException) {
-                call.respond(HttpStatusCode.BadRequest, e.message ?: "")
+                call.respond(HttpStatusCode.BadRequest, e.message.orEmpty())
             } catch (e: NotFoundException) {
-                call.respond(HttpStatusCode.NotFound, e.message ?: "")
+                call.respond(HttpStatusCode.NotFound, e.message.orEmpty())
             } catch (e: ExposedSQLException) {
                 if (e.message?.contains("duplicate key") == true) {
                     call.respond(HttpStatusCode.Conflict, "Dictionary with name $fromName already exists")
@@ -190,9 +190,9 @@ fun Route.dictManagement(service: DictionaryService) {
                 service.deleteDictionary(name)
                 call.respond(HttpStatusCode.OK, "Dictionary $name deleted")
             } catch (e: IllegalArgumentException) {
-                call.respond(HttpStatusCode.BadRequest, e.message ?: "")
+                call.respond(HttpStatusCode.BadRequest, e.message.orEmpty())
             } catch (e: NotFoundException) {
-                call.respond(HttpStatusCode.NotFound, e.message ?: "")
+                call.respond(HttpStatusCode.NotFound, e.message.orEmpty())
             } catch (e: ExposedSQLException) {
                 call.respond(HttpStatusCode.InternalServerError, "Failed to delete dictionary")
             }
